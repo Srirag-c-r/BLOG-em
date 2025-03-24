@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Posts - Mini Blog{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Saved Posts</h1>
+            
+            {% if saved_posts %}
+                {% for post in saved_posts %}
+                    <div class="card mb-4 post-card">
+                        <div class="card-body">
+                            <h2 class="card-title h4">
+                                <a href="{% url 'blog_detail' post.id %}" class="text-decoration-none">
+                                    {{ post.title }}
+                                </a>
+                            </h2>
+                            <p class="text-muted small mb-2">
+                                By <a href="{% url 'blogger_detail' post.author.id %}" class="text-decoration-none">
+                                    {{ post.author.username }}
+                                </a>
+                                on {{ post.created_at|date:"F j, Y" }}
+                            </p>
+                            <p class="card-text">{{ post.content|truncatewords:50 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{% url 'blog_detail' post.id %}" class="btn btn-primary btn-sm">Read More</a>
+                                    <button class="btn btn-outline-primary btn-sm ms-2 save-post-btn" 
+                                            data-post-id="{{ post.id }}"
+                                            data-saved="true">
+                                        <i class="fas fa-bookmark"></i> Saved
+                                    </button>
+                                </div>
+                                <div class="text-muted small">
+                                    <span class="me-3">
+                                        <i class="far fa-heart"></i> {{ post.likes.count }}
+                                    </span>
+                                    <span>
+                                        <i class="far fa-comment"></i> {{ post.comments.count }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="far fa-bookmark fa-3x text-muted mb-3"></i>
+                        <h3 class="h4">No Saved Posts</h3>
+                        <p class="text-muted mb-3">You haven't saved any posts yet.</p>
+                        <a href="{% url 'blog_list' %}" class="btn btn-primary">
+                            Browse Posts
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle save/unsave post
+    document.querySelectorAll('.save-post-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            const isSaved = this.dataset.saved === 'true';
+            
+            fetch(`/blog/${postId}/save/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Remove the post card if unsaved
+                    if (!data.saved) {
+                        this.closest('.post-card').remove();
+                        
+                        // Check if there are any posts left
+                        if (document.querySelectorAll('.post-card').length === 0) {
+                            location.reload(); // Reload to show empty state
+                        }
+                    }
+                    
+                    // Show notification
+                    showNotification(data.message, 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error updating bookmark', 'error');
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+
+<style>
+.post-card {
+    transition: transform 0.2s ease-in-out;
+}
+.post-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %} 

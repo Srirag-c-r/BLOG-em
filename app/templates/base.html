@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mini Blog{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --background-color: #1a1a1a;
+            --text-color: #ffffff;
+            --card-bg: #2d2d2d;
+            --border-color: #404040;
+            --nav-bg: rgba(45, 45, 45, 0.95);
+            --nav-text: #ffffff;
+            --accent-color: #6366f1;
+            --muted-text: rgba(255, 255, 255, 0.7);
+            --link-color: #818cf8;
+            --link-hover-color: #6366f1;
+            --font-family-base: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+            --font-weight-light: 300;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: var(--font-family-base);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: var(--font-family-base);
+            font-weight: var(--font-weight-bold);
+        }
+
+        /* Table styles for dark theme */
+        .table {
+            color: var(--text-color);
+        }
+
+        .table thead th {
+            color: var(--muted-text);
+            border-bottom-color: var(--border-color);
+        }
+
+        .table td {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .card-title {
+            color: var(--text-color) !important;
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .card-text {
+            color: var(--muted-text) !important;
+        }
+
+        /* Link styles */
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--link-hover-color);
+        }
+
+        /* Button styles */
+        .btn-outline-primary {
+            color: var(--link-color);
+            border-color: var(--link-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--link-color);
+            border-color: var(--link-color);
+            color: var(--text-color);
+        }
+
+        .btn-outline-danger {
+            color: #f87171;
+            border-color: #f87171;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #f87171;
+            border-color: #f87171;
+            color: var(--text-color);
+        }
+
+        /* Navigation styles */
+        .navbar {
+            background-color: var(--nav-bg) !important;
+        }
+
+        .nav-link {
+            color: var(--nav-text) !important;
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Text utilities */
+        .text-muted {
+            color: var(--muted-text) !important;
+        }
+
+        /* Pagination styles */
+        .page-link {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .page-link:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        /* Alert styles */
+        .alert {
+            color: var(--text-color);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+        }
+
+        /* Form styles */
+        .form-control {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+            font-family: var(--font-family-base);
+            font-weight: var(--font-weight-normal);
+        }
+
+        .form-control:focus {
+            background-color: var(--card-bg);
+            border-color: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--nav-bg) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+            font-weight: var(--font-weight-bold);
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            color: var(--nav-text) !important;
+            font-weight: var(--font-weight-medium);
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        .nav-link.active::after {
+            width: 80%;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-weight: var(--font-weight-medium);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            font-weight: var(--font-weight-medium);
+            letter-spacing: 0.02em;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            border: none;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+            transform: translateY(-2px);
+        }
+
+        .page-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 6rem 0 4rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+            color: white;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .pagination {
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            border: none;
+            background: #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .blog-post {
+            margin-bottom: 2rem;
+        }
+
+        .blog-post .card-title {
+            color: var(--text-color);
+            font-size: 1.75rem;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .blog-post .card-text {
+            color: #475569;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .meta-info {
+            color: var(--muted-text);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .meta-info i {
+            color: var(--accent-color);
+        }
+
+        .comment-section {
+            margin-top: 2rem;
+        }
+
+        .comment {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+        }
+
+        .comment:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .comment .meta-info {
+            color: var(--muted-text);
+        }
+
+        .comment .content {
+            color: var(--text-color);
+            margin-top: 0.5rem;
+        }
+
+        .comment-form {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .comment-form textarea {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .comment-form textarea:focus {
+            background-color: var(--card-bg);
+            border-color: var(--accent-color);
+            color: var(--text-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        main {
+            margin-top: 76px;
+            padding-top: 6rem;
+            min-height: calc(100vh - 60px);
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 0 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            
+            .page-header {
+                padding: 4rem 0 2rem;
+            }
+
+            .blog-post .card-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Custom Toast Styles */
+        .toastify {
+            background: var(--primary-gradient) !important;
+            border-radius: 1rem !important;
+            font-family: 'Poppins', sans-serif !important;
+            padding: 1rem 2rem !important;
+            font-weight: 500 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .toastify.toast-success {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+        }
+
+        .toastify.toast-error {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+        }
+
+        .toastify.toast-info {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+        }
+
+        .toastify.toast-warning {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+        }
+
+        /* Toast Notification Styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1060;
+        }
+        
+        .toast {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .toast.success {
+            border-left: 4px solid #34d399;
+        }
+        
+        .toast.error {
+            border-left: 4px solid #f87171;
+        }
+
+        /* Content padding to account for fixed navbar */
+        main {
+            padding-top: 6rem;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--bs-primary);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Custom button styles */
+        .btn-primary {
+            font-weight: var(--font-weight-medium);
+            letter-spacing: 0.02em;
+        }
+
+        /* Card hover effects */
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+        }
+
+        /* Form styles */
+        .form-control {
+            font-family: var(--font-family-base);
+            font-weight: var(--font-weight-normal);
+        }
+
+        .form-label {
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Alert styles */
+        .alert {
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Badge styles */
+        .badge {
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Display styles */
+        .display-4 {
+            font-weight: var(--font-weight-bold);
+            letter-spacing: -0.02em;
+        }
+
+        .section-title {
+            font-weight: var(--font-weight-bold);
+            letter-spacing: -0.01em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">BLOG'em</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'blog/list' in request.path %}active{% endif %}" href="{% url 'blog_list' %}">Blogs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'bloggers' in request.path %}active{% endif %}" href="{% url 'blogger_list' %}">Bloggers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'about' in request.path %}active{% endif %}" href="{% url 'about' %}">About</a>
+                    </li>
+                </ul>
+
+                <!-- Search Form -->
+                <form class="d-flex mx-3" action="{% url 'search' %}" method="get">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search..." required>
+                        <button class="btn btn-outline-light btn-sm" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'my-profile' in request.path %}active{% endif %}" href="{% url 'my_profile' %}">My Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'saved-posts' in request.path %}active{% endif %}" href="{% url 'saved_posts' %}">
+                                <i class="far fa-bookmark"></i> Saved Posts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'login' in request.path %}active{% endif %}" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'register' in request.path %}active{% endif %}" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="container mt-4">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <div class="toast-container">
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="welcomeToast">
+            <div class="toast-header">
+                <i class="fas fa-sparkles me-2 text-primary"></i>
+                <strong class="me-auto">Welcome Back!</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <i class="fas fa-user-circle me-2"></i>
+                Welcome back, {{ user.username }}! Ready to share your thoughts?
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        // Configure toastr options
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+        
+        // Function to show notifications
+        function showNotification(message, type) {
+            switch(type) {
+                case 'success':
+                    toastr.success(message);
+                    break;
+                case 'error':
+                    toastr.error(message);
+                    break;
+                case 'warning':
+                    toastr.warning(message);
+                    break;
+                case 'info':
+                    toastr.info(message);
+                    break;
+                default:
+                    toastr.info(message);
+            }
+        }
+        
+        // Handle Django messages
+        {% if messages %}
+            {% for message in messages %}
+                showNotification("{{ message }}", "{{ message.tags }}");
+            {% endfor %}
+            {% endif %}
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

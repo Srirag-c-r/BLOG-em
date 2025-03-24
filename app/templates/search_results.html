@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results - BLOG'em{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Search Header Section -->
+    <div class="search-header text-center mb-5">
+        <h2 class="display-4 mb-4 text-light">{% if query %}Search Results{% else %}Search{% endif %}</h2>
+    </div>
+
+    <!-- Search Results Section -->
+    {% if query %}
+        {% if total_results == 0 %}
+            <div class="text-center py-5">
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x mb-3 text-light"></i>
+                    <h3 class="text-light">No results found for "{{ query }}"</h3>
+                    <p class="text-light-muted">Try different keywords or check your spelling</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="results-summary mb-4">
+                <p class="text-light text-center">Found {{ total_results }} result{{ total_results|pluralize }} for "{{ query }}"</p>
+            </div>
+
+            <!-- Blog Results -->
+            {% if blog_results %}
+                <div class="blog-results mb-5">
+                    <h3 class="section-title mb-4">Blog Posts</h3>
+                    {% for post in blog_results %}
+                        <div class="card blog-card mb-4 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-3">
+                                    <a href="{% url 'blog_detail' post.id %}" class="text-decoration-none">
+                                        {{ post.title }}
+                                    </a>
+                                </h4>
+                                <div class="blog-meta mb-3">
+                                    <span class="me-3">
+                                        <i class="fas fa-user-circle"></i>
+                                        <a href="{% url 'blogger_detail' post.author.id %}" class="text-decoration-none">
+                                            {{ post.author.username }}
+                                        </a>
+                                    </span>
+                                    <span class="me-3">
+                                        <i class="far fa-calendar"></i>
+                                        {{ post.created_at|date:"F j, Y" }}
+                                    </span>
+                                    <span class="me-3">
+                                        <i class="far fa-heart"></i>
+                                        {{ post.likes.count }} likes
+                                    </span>
+                                    <span>
+                                        <i class="far fa-comment"></i>
+                                        {{ post.comments.count }} comments
+                                    </span>
+                                </div>
+                                <p class="card-text blog-content">{{ post.content|truncatewords:50 }}</p>
+                                <a href="{% url 'blog_detail' post.id %}" class="btn btn-primary btn-sm">Read More</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- User Results -->
+            {% if user_results %}
+                <div class="user-results">
+                    <h3 class="section-title mb-4">Users</h3>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for user_profile in user_results %}
+                            <div class="col">
+                                <div class="card user-card h-100 border-0 shadow-sm">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="profile-image me-3">
+                                                {% if user_profile.profile_picture %}
+                                                    <img src="{{ user_profile.profile_picture.url }}" 
+                                                         alt="Profile Picture" 
+                                                         class="rounded-circle profile-pic"
+                                                         width="60" height="60">
+                                                {% else %}
+                                                    <div class="profile-pic-placeholder rounded-circle d-flex align-items-center justify-content-center"
+                                                         style="width: 60px; height: 60px; background-color: var(--accent-color); color: white;">
+                                                        {{ user_profile.username|make_list|first|upper }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="user-info">
+                                                <h5 class="mb-1">
+                                                    <a href="{% url 'blogger_detail' user_profile.id %}" 
+                                                       class="text-decoration-none">
+                                                        {{ user_profile.username }}
+                                                    </a>
+                                                </h5>
+                                                {% if user_profile.full_name %}
+                                                    <p class="text-light-muted mb-0">{{ user_profile.full_name }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-search fa-4x mb-4 text-primary"></i>
+                <h3 class="text-light">Search Blogs and Profiles</h3>
+                <p class="text-light-muted">Use the search bar in the navigation to find blog posts and users</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+/* Search Styles */
+.search-header {
+    margin-top: -1rem;
+}
+
+/* Blog Card Styles */
+.blog-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 1rem;
+    background-color: var(--dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.5) !important;
+}
+
+.blog-card .card-title a {
+    color: #fff;
+}
+
+.blog-card .card-title a:hover {
+    color: var(--accent-color);
+}
+
+.blog-meta {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.blog-meta a {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.blog-meta a:hover {
+    color: var(--accent-color);
+}
+
+.blog-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* User Card Styles */
+.user-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 1rem;
+    background-color: var(--dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.5) !important;
+}
+
+.user-card .user-info a {
+    color: #fff;
+}
+
+.user-card .user-info a:hover {
+    color: var(--accent-color);
+}
+
+.text-light-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.profile-pic {
+    object-fit: cover;
+    border: 2px solid var(--accent-color);
+}
+
+.profile-pic-placeholder {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Section Titles */
+.section-title {
+    position: relative;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    color: #fff;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 2px;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color-hover);
+    border-color: var(--accent-color-hover);
+    color: #fff;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .search-header {
+        margin-top: 0;
+    }
+    
+    .section-title {
+        text-align: center;
+    }
+    
+    .section-title:after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .blog-content {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %} 
